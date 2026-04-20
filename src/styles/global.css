@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0a0a0a;
+  --color-ink-2: #141414;
+  --color-ink-3: #1f1f1f;
+  --color-bone: #f5f1ea;
+  --color-bone-2: #ebe5d9;
+  --color-rust: #c2410c;
+  --color-rust-2: #ea580c;
+  --color-amber: #f59e0b;
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; background: var(--color-ink); color: var(--color-bone); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  body { background: var(--color-ink); color: var(--color-bone); }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.01em; }
+  ::selection { background: var(--color-rust); color: #fff; }
+}
+
+.grain { position: relative; }
+.grain::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.06; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='3'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.875rem 1.5rem; font-weight: 600; border-radius: 999px; transition: transform 160ms ease, background 160ms ease; }
+.btn-primary { background: var(--color-rust); color: #fff; }
+.btn-primary:hover { background: var(--color-rust-2); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--color-bone); border: 1px solid rgba(245,241,234,0.25); }
+.btn-ghost:hover { background: rgba(245,241,234,0.08); }
