@@ -1,0 +1,44 @@
+---
+import Base from "../../layouts/Base.astro";
+import { COLLECTIONS } from "../../lib/catalog";
+import { BRAND } from "../../lib/brand";
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: `Collections | ${BRAND.name}`,
+  url: (Astro.site?.toString() || "") + "collections",
+  hasPart: COLLECTIONS.map((c) => ({
+    "@type": "CollectionPage",
+    name: c.name,
+    url: (Astro.site?.toString() || "") + "collections/" + c.slug,
+  })),
+};
+---
+<Base
+  title={`Collections | ${BRAND.name}`}
+  description="Three focused collections: music graphic apparel, deep-dive music books and audio, and small-batch fragrance. Explore Harmony Threads by category."
+  structuredData={schema}
+>
+  <section class="max-w-7xl mx-auto px-5 md:px-8 py-20">
+    <nav class="text-xs text-bone/40 mb-4">
+      <a href="/" class="hover:text-rust">Home</a> <span class="mx-2">/</span> <span>Collections</span>
+    </nav>
+    <h1 class="font-display text-5xl md:text-6xl">Collections.</h1>
+    <p class="mt-3 text-bone/70 max-w-2xl">Three rooms in one shop. Each one obsessive about a different corner of the same world.</p>
+  </section>
+  <section class="max-w-7xl mx-auto px-5 md:px-8 pb-24 grid md:grid-cols-3 gap-5">
+    {COLLECTIONS.map((c) => (
+      <a href={`/collections/${c.slug}`} class="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 hover:border-rust/60 transition">
+        <img src={c.image} alt={`${c.name} — ${c.tagline}`} class="w-full h-full object-cover group-hover:scale-105 transition duration-700"/>
+        <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent"></div>
+        <div class="absolute bottom-6 left-6 right-6">
+          <p class="text-xs uppercase tracking-widest text-rust">{c.tagline}</p>
+          <h2 class="font-display text-3xl mt-1">{c.name}</h2>
+          <p class="mt-3 text-sm text-bone/60 line-clamp-3">{c.blurb}</p>
+          <span class="inline-block mt-4 text-sm text-bone/70 group-hover:text-bone">Shop {c.name.toLowerCase()} →</span>
+        </div>
+      </a>
+    ))}
+  </section>
+</Base>

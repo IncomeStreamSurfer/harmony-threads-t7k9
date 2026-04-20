@@ -1,0 +1,69 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getPostBySlug } from "../../lib/supabase";
+import { BRAND } from "../../lib/brand";
+
+const { slug } = Astro.params as { slug: string };
+const post = await getPostBySlug(slug) as any;
+if (!post) return Astro.redirect("/blog");
+
+const breadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: Astro.site?.toString() },
+    { "@type": "ListItem", position: 2, name: "Journal", item: (Astro.site?.toString() || "") + "blog" },
+    { "@type": "ListItem", position: 3, name: post.title, item: (Astro.site?.toString() || "") + "blog/" + post.slug },
+  ],
+};
+
+const article = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.title,
+  image: post.cover_image_url,
+  datePublished: post.published_at,
+  dateModified: post.updated_at || post.published_at,
+  description: post.seo_description || post.excerpt,
+  author: { "@type": "Organization", name: BRAND.name },
+  publisher: {
+    "@type": "Organization",
+    name: BRAND.name,
+    logo: { "@type": "ImageObject", url: (Astro.site?.toString() || "") + "favicon.svg" },
+  },
+  mainEntityOfPage: (Astro.site?.toString() || "") + "blog/" + post.slug,
+};
+
+const html = (post.body || "")
+  .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+  .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+  .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+  .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+  .replace(/\*(.+?)\*/g, "<em>$1</em>")
+  .replace(/\n\n/g, "</p><p>")
+  .replace(/^(.)/, "<p>$1")
+  .concat("</p>");
+---
+<Base
+  title={`${post.seo_title || post.title} | ${BRAND.name}`}
+  description={post.seo_description || post.excerpt || BRAND.description}
+  ogType="article"
+  ogImage={post.cover_image_url}
+  publishDate={post.published_at}
+  modifiedDate={post.updated_at}
+  tags={post.tags}
+  structuredData={[breadcrumb, article]}
+>
+  <article class="max-w-3xl mx-auto px-5 md:px-8 py-16">
+    <nav class="text-xs text-bone/40 mb-4">
+      <a href="/" class="hover:text-rust">Home</a> <span class="mx-2">/</span>
+      <a href="/blog" class="hover:text-rust">Journal</a> <span class="mx-2">/</span>
+      <span>{post.title}</span>
+    </nav>
+    <p class="text-xs uppercase tracking-widest text-rust font-semibold">{new Date(post.published_at).toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })}</p>
+    <h1 class="font-display text-4xl md:text-5xl mt-3 leading-tight">{post.title}</h1>
+    {post.excerpt && <p class="mt-5 text-bone/70 text-xl">{post.excerpt}</p>}
+    {post.cover_image_url && <img src={post.cover_image_url} alt={post.title} class="mt-10 rounded-2xl w-full"/>}
+    <div class="mt-10 prose prose-invert prose-lg max-w-none prose-headings:font-display prose-a:text-rust" set:html={html} />
+  </article>
+</Base>
