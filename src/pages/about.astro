@@ -1,0 +1,71 @@
+---
+import Base from "../layouts/Base.astro";
+import { BRAND } from "../lib/brand";
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: `About | ${BRAND.name}`,
+  description: `About ${BRAND.name} — our story, our studio, our standards.`,
+  url: (Astro.site?.toString() || "") + "about",
+  mainEntity: {
+    "@type": "Organization", name: BRAND.name, foundingDate: "2021", description: BRAND.description,
+    address: { "@type": "PostalAddress", streetAddress: BRAND.address.street, addressLocality: BRAND.address.city, postalCode: BRAND.address.postcode, addressCountry: BRAND.address.country },
+  },
+};
+
+const breadcrumb = {
+  "@context": "https://schema.org", "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: Astro.site?.toString() },
+    { "@type": "ListItem", position: 2, name: "About", item: (Astro.site?.toString() || "") + "about" },
+  ],
+};
+---
+<Base
+  title={`About — independent music apparel, books & fragrance | ${BRAND.name}`}
+  description="The story behind Harmony Threads — a small East London studio making music-inspired apparel, books, and small-batch fragrance since 2021."
+  structuredData={[breadcrumb, schema]}
+>
+  <section class="relative overflow-hidden border-b border-white/5">
+    <div class="absolute inset-0 bg-gradient-to-br from-ink via-ink-2 to-ink"></div>
+    <div class="absolute top-0 right-0 w-96 h-96 bg-rust/15 blur-3xl rounded-full"></div>
+    <div class="relative max-w-4xl mx-auto px-5 md:px-8 py-24">
+      <nav class="text-xs text-bone/40 mb-4">
+        <a href="/" class="hover:text-rust">Home</a> <span class="mx-2">/</span> <span>About</span>
+      </nav>
+      <p class="text-xs uppercase tracking-[0.28em] text-rust font-semibold">Since 2021</p>
+      <h1 class="font-display text-5xl md:text-7xl mt-3 leading-[1]">We started with<br/>one bad t-shirt.</h1>
+      <p class="mt-6 text-bone/70 text-lg max-w-2xl">And we've been trying to make better ones — and better books, and better perfume — ever since.</p>
+    </div>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-5 md:px-8 py-20">
+    <div class="space-y-6 text-bone/80 leading-relaxed text-lg">
+      <p>Harmony Threads was founded in 2021 by <strong class="text-bone">Kaya Orsini</strong>, a music journalist who couldn't find a single t-shirt that did justice to the records she grew up with. So she sketched one on the back of a Mojo magazine, found a hand-press in Shoreditch, printed twelve, and sold every single one in under an hour.</p>
+      <p>The twelve became twenty-four, the twenty-four became two hundred, and within eighteen months the tees had paid for a small studio in a converted Victorian pressing plant near Broadway Market. That's where we still work today — six of us, two print tables, an overly enthusiastic dog called Keith Richards.</p>
+      <h2 class="font-display text-3xl md:text-4xl mt-12 mb-4 text-bone">Why books too?</h2>
+      <p>Because Kaya is a journalist first. In 2024 she finished <a href="/shop/history-of-rock-music-ebook" class="underline decoration-rust/60 underline-offset-4 hover:text-rust">The History of Rock Music</a> — a 480-page illustrated deep-dive — and we couldn't think of a better home for it than our own shop.</p>
+      <h2 class="font-display text-3xl md:text-4xl mt-12 mb-4 text-bone">And fragrance?</h2>
+      <p>That one is stranger. We got obsessed with the specific smell of vinyl record shops — warm wood, old paper, a little bit of leather — and spent eighteen months with master perfumer <em>Léa Bouchard</em> in Grasse trying to bottle it. The result is <a href="/shop/eau-de-vinyl-perfume" class="underline decoration-rust/60 underline-offset-4 hover:text-rust">Eau de Vinyl</a>, our first scent. There will be more.</p>
+      <h2 class="font-display text-3xl md:text-4xl mt-12 mb-4 text-bone">The rules.</h2>
+      <ol class="list-decimal pl-6 space-y-3">
+        <li>Nothing ships unless we'd own it ourselves.</li>
+        <li>Tees are hand-printed in London on heavyweight combed cotton. No DTG, no fast fashion.</li>
+        <li>Books are DRM-free. You buy it, you own it.</li>
+        <li>Fragrance is hand-filled in Grasse in small batches. Each batch is numbered on the bottle.</li>
+        <li>If you don't love it, send it back inside 30 days.</li>
+      </ol>
+    </div>
+
+    <div class="mt-16 grid sm:grid-cols-3 gap-4 border-t border-white/5 pt-10">
+      <div><div class="font-display text-4xl text-rust">8,400+</div><div class="text-bone/60 mt-1">pieces shipped</div></div>
+      <div><div class="font-display text-4xl text-rust">32</div><div class="text-bone/60 mt-1">countries</div></div>
+      <div><div class="font-display text-4xl text-rust">4.9★</div><div class="text-bone/60 mt-1">from 1,203 reviews</div></div>
+    </div>
+
+    <div class="mt-16 text-center">
+      <a href="/shop" class="btn btn-primary">See what we're making →</a>
+    </div>
+  </section>
+</Base>

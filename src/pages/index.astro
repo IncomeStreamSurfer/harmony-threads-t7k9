@@ -1,0 +1,190 @@
+---
+import Base from "../layouts/Base.astro";
+import { BRAND } from "../lib/brand";
+import { allProducts, COLLECTIONS, formatGBP, minPricePence } from "../lib/catalog";
+
+const products = await allProducts();
+const featured = products.filter((p) => p.collections.includes("featured"));
+
+const websiteSchema = {
+  "@context": "https://schema.org", "@type": "WebSite",
+  name: BRAND.name, url: Astro.site?.toString(), description: BRAND.description,
+  potentialAction: { "@type": "SearchAction", target: (Astro.site?.toString() || "") + "shop?q={search_term_string}", "query-input": "required name=search_term_string" },
+};
+
+const storeSchema = {
+  "@context": "https://schema.org", "@type": "Store",
+  name: BRAND.name, url: Astro.site?.toString(),
+  image: (Astro.site?.toString() || "") + "favicon.svg",
+  priceRange: "££", telephone: BRAND.phone, email: BRAND.email,
+  address: { "@type": "PostalAddress", streetAddress: BRAND.address.street, addressLocality: BRAND.address.city, postalCode: BRAND.address.postcode, addressCountry: BRAND.address.country },
+};
+---
+<Base
+  title={`${BRAND.name} — ${BRAND.tagline}`}
+  description={BRAND.description}
+  structuredData={[websiteSchema, storeSchema]}
+>
+  <section class="relative overflow-hidden grain">
+    <div class="absolute inset-0 bg-gradient-to-br from-ink via-ink to-ink-3"></div>
+    <div class="absolute -top-24 -right-24 w-[40rem] h-[40rem] rounded-full bg-rust/20 blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/4 w-96 h-96 rounded-full bg-amber/10 blur-3xl"></div>
+
+    <div class="relative max-w-7xl mx-auto px-5 md:px-8 pt-20 pb-28 md:pt-32 md:pb-40 grid md:grid-cols-12 gap-12 items-center">
+      <div class="md:col-span-7">
+        <p class="inline-flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-rust font-semibold">
+          <span class="w-8 h-px bg-rust"></span> Independent since 2021
+        </p>
+        <h1 class="mt-5 font-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] font-semibold text-bone">
+          Music, memories<br/>& things worth<br/><em class="text-rust not-italic">wearing.</em>
+        </h1>
+        <p class="mt-6 text-bone/70 text-lg max-w-xl leading-relaxed">
+          Harmony Threads is a small studio in East London making vintage-inspired graphic tees, deep-dive music books, and small-batch fragrance for people who built their taste on the back of a vinyl sleeve.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/shop" class="btn btn-primary">{BRAND.cta} →</a>
+          <a href="/about" class="btn btn-ghost">Our story</a>
+        </div>
+        <div class="mt-12 flex gap-10 text-sm">
+          <div><div class="font-display text-3xl text-bone">8,400+</div><div class="text-bone/50">pieces shipped</div></div>
+          <div><div class="font-display text-3xl text-bone">4.9★</div><div class="text-bone/50">from 1,203 reviews</div></div>
+          <div class="hidden sm:block"><div class="font-display text-3xl text-bone">£50+</div><div class="text-bone/50">free UK shipping</div></div>
+        </div>
+      </div>
+
+      <div class="md:col-span-5 relative">
+        <div class="relative aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+          <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80" alt="The Band graphic tee hanging in a London workshop" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent"></div>
+          {featured[0] && (
+            <a href={`/shop/${featured[0].slug}`} class="absolute bottom-6 left-6 right-6 flex items-end justify-between">
+              <div>
+                <p class="text-xs uppercase tracking-widest text-bone/60">This week</p>
+                <p class="font-display text-2xl">{featured[0].name}</p>
+              </div>
+              <span class="bg-rust text-white text-xs font-bold px-3 py-1.5 rounded-full">{formatGBP(minPricePence(featured[0]))}</span>
+            </a>
+          )}
+        </div>
+        <div class="absolute -left-6 -top-6 w-20 h-20 rounded-full bg-amber/90 text-ink font-display text-lg grid place-items-center rotate-[-12deg] shadow-xl">
+          <div class="text-center leading-tight">New<br/>drop</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative border-y border-white/5 bg-ink-2/60">
+      <div class="max-w-7xl mx-auto px-5 md:px-8 py-4 flex items-center gap-8 text-xs uppercase tracking-[0.24em] text-bone/40 overflow-x-auto whitespace-nowrap">
+        <span class="text-rust">●</span> Free UK shipping over £50
+        <span class="text-rust">●</span> Hand-printed in London
+        <span class="text-rust">●</span> Small-batch fragrance
+        <span class="text-rust">●</span> Instant eBook delivery
+        <span class="text-rust">●</span> 30-day returns
+      </div>
+    </div>
+  </section>
+
+  <section id="collections" class="max-w-7xl mx-auto px-5 md:px-8 py-24">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <p class="text-xs uppercase tracking-[0.28em] text-rust font-semibold">Collections</p>
+        <h2 class="font-display text-4xl md:text-5xl mt-2">Three departments, one obsession.</h2>
+      </div>
+      <a href="/shop" class="hidden md:inline text-sm text-bone/60 hover:text-rust">View all products →</a>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5">
+      {COLLECTIONS.map((c) => (
+        <a href={`/collections/${c.slug}`} class="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 hover:border-rust/60 transition">
+          <img src={c.image} alt={`${c.name} — ${c.tagline}`} class="w-full h-full object-cover group-hover:scale-105 transition duration-700"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent"></div>
+          <div class="absolute bottom-6 left-6 right-6">
+            <p class="text-xs uppercase tracking-widest text-rust">{c.tagline}</p>
+            <h3 class="font-display text-3xl mt-1">{c.name}</h3>
+            <span class="inline-block mt-3 text-sm text-bone/70 group-hover:text-bone">Shop {c.name.toLowerCase()} →</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="bg-ink-2 py-24 border-y border-white/5">
+    <div class="max-w-7xl mx-auto px-5 md:px-8">
+      <div class="flex items-end justify-between mb-10">
+        <div>
+          <p class="text-xs uppercase tracking-[0.28em] text-rust font-semibold">This season's picks</p>
+          <h2 class="font-display text-4xl md:text-5xl mt-2">Featured products.</h2>
+        </div>
+        <a href="/shop" class="text-sm text-bone/60 hover:text-rust">See everything →</a>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        {featured.map((p) => (
+          <a href={`/shop/${p.slug}`} class="group bg-ink rounded-2xl overflow-hidden border border-white/10 hover:border-rust/50 transition">
+            <div class="relative aspect-square overflow-hidden">
+              <img src={p.image_url || ""} alt={p.image_alt || p.name} class="w-full h-full object-cover group-hover:scale-105 transition duration-700"/>
+              {p.compare_at_pence && (
+                <span class="absolute top-3 left-3 bg-rust text-white text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full">Sale</span>
+              )}
+              {p.type === "eBook" && (
+                <span class="absolute top-3 right-3 bg-amber text-ink text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full">Digital</span>
+              )}
+            </div>
+            <div class="p-5">
+              <p class="text-[11px] uppercase tracking-widest text-bone/40">{p.vendor}</p>
+              <h3 class="font-display text-xl mt-1 group-hover:text-rust transition">{p.name}</h3>
+              <div class="mt-3 flex items-baseline gap-2">
+                <span class="font-semibold text-bone">From {formatGBP(minPricePence(p))}</span>
+                {p.compare_at_pence && (
+                  <span class="text-sm text-bone/40 line-through">{formatGBP(p.compare_at_pence)}</span>
+                )}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-5 md:px-8 py-24 grid md:grid-cols-2 gap-16 items-center">
+    <div class="relative aspect-[4/5] rounded-2xl overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1598387993211-5c4d0f46e2a6?auto=format&fit=crop&w=900&q=80" alt="Inside the Harmony Threads print shop" class="w-full h-full object-cover"/>
+    </div>
+    <div>
+      <p class="text-xs uppercase tracking-[0.28em] text-rust font-semibold">Our story</p>
+      <h2 class="font-display text-4xl md:text-5xl mt-2">We started with one bad t-shirt.</h2>
+      <p class="mt-5 text-bone/70 leading-relaxed">
+        In 2021, our founder Kaya couldn't find a single tee that did justice to the bands that raised her. So she sketched one, found a hand-press in Shoreditch, and printed twelve. They sold in an hour.
+      </p>
+      <p class="mt-4 text-bone/70 leading-relaxed">
+        Five years on, we make <a href="/collections/apparel" class="underline decoration-rust/60 underline-offset-4 hover:text-rust">apparel</a>, write <a href="/collections/books" class="underline decoration-rust/60 underline-offset-4 hover:text-rust">books</a>, and even bottle <a href="/collections/fragrance" class="underline decoration-rust/60 underline-offset-4 hover:text-rust">fragrance</a> — but the rule is the same: nothing ships unless we'd wear it, read it, or spray it ourselves.
+      </p>
+      <a href="/about" class="mt-8 inline-flex btn btn-ghost">Read more about us</a>
+    </div>
+  </section>
+
+  <section class="bg-ink-2 py-20 border-y border-white/5">
+    <div class="max-w-7xl mx-auto px-5 md:px-8">
+      <h2 class="font-display text-3xl md:text-4xl text-center">Loved by music people.</h2>
+      <div class="mt-12 grid md:grid-cols-3 gap-6">
+        {[
+          { q: "The cotton is heavy and the print has actually softened beautifully after ten washes. Rare.", a: "Jess — Brighton" },
+          { q: "I read the Rock Music book cover-to-cover on a train. Kaya clearly wrote it with her records open.", a: "Marcus — Berlin" },
+          { q: "Eau de Vinyl is unreasonably good. Smells like my dad's shop in 1994.", a: "Priya — Glasgow" },
+        ].map((t) => (
+          <figure class="bg-ink border border-white/5 rounded-2xl p-6">
+            <div class="text-rust text-2xl">"</div>
+            <blockquote class="mt-2 text-bone/80 leading-relaxed">{t.q}</blockquote>
+            <figcaption class="mt-4 text-sm text-bone/50">{t.a}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-5xl mx-auto px-5 md:px-8 py-24 text-center">
+    <h2 class="font-display text-4xl md:text-5xl">New drops, first dibs.</h2>
+    <p class="mt-4 text-bone/70 max-w-xl mx-auto">Join the list for early access to restocks, fragrance batches, and the occasional essay about a B-side.</p>
+    <form action="/api/subscribe" method="post" class="mt-8 max-w-md mx-auto flex gap-2">
+      <input required type="email" name="email" placeholder="you@inbox.com" class="flex-1 bg-ink-2 border border-white/10 rounded-full px-5 py-3 placeholder:text-bone/30 focus:border-rust outline-none" />
+      <button class="btn btn-primary" type="submit">Join →</button>
+    </form>
+  </section>
+</Base>

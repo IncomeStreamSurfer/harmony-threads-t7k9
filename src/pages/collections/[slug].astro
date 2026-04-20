@@ -1,0 +1,101 @@
+---
+import Base from "../../layouts/Base.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import { productsInCollection, COLLECTIONS } from "../../lib/catalog";
+import { BRAND } from "../../lib/brand";
+
+export function getStaticPaths() {
+  return COLLECTIONS.map((c) => ({ params: { slug: c.slug } }));
+}
+
+const { slug } = Astro.params as { slug: string };
+const collection = COLLECTIONS.find((c) => c.slug === slug);
+if (!collection) return Astro.redirect("/shop");
+
+const products = await productsInCollection(slug);
+
+const breadcrumb = {
+  "@context": "https://schema.org", "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: Astro.site?.toString() },
+    { "@type": "ListItem", position: 2, name: "Shop", item: (Astro.site?.toString() || "") + "shop" },
+    { "@type": "ListItem", position: 3, name: collection.name, item: (Astro.site?.toString() || "") + "collections/" + collection.slug },
+  ],
+};
+
+const schema = {
+  "@context": "https://schema.org", "@type": "CollectionPage",
+  name: `${collection.name} — ${BRAND.name}`,
+  url: (Astro.site?.toString() || "") + "collections/" + collection.slug,
+  about: collection.keyword,
+  hasPart: products.map((p) => ({
+    "@type": "Product", name: p.name,
+    url: (Astro.site?.toString() || "") + "shop/" + p.slug,
+    image: p.image_url,
+    offers: { "@type": "Offer", price: (p.price_pence / 100).toFixed(2), priceCurrency: "GBP" },
+  })),
+};
+---
+<Base
+  title={`${collection.name} — ${collection.tagline} | ${BRAND.name}`}
+  description={collection.blurb}
+  ogImage={collection.image}
+  structuredData={[breadcrumb, schema]}
+>
+  <section class="relative overflow-hidden border-b border-white/5">
+    <div class="absolute inset-0 opacity-40"><img src={collection.image} alt={collection.name} class="w-full h-full object-cover"/></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/80 to-ink/40"></div>
+    <div class="relative max-w-7xl mx-auto px-5 md:px-8 py-24 md:py-32">
+      <nav class="text-xs text-bone/50 mb-4">
+        <a href="/" class="hover:text-rust">Home</a> <span class="mx-2">/</span>
+        <a href="/shop" class="hover:text-rust">Shop</a> <span class="mx-2">/</span>
+        <span>{collection.name}</span>
+      </nav>
+      <p class="text-xs uppercase tracking-[0.28em] text-rust font-semibold">{collection.tagline}</p>
+      <h1 class="font-display text-5xl md:text-7xl mt-3">{collection.name}</h1>
+      <p class="mt-5 text-bone/70 text-lg max-w-2xl">{collection.blurb}</p>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-5 md:px-8 py-16">
+    {products.length === 0 ? (
+      <div class="text-center py-24">
+        <p class="text-bone/60">New pieces coming to this collection soon.</p>
+        <a href="/shop" class="mt-4 inline-flex btn btn-ghost">Back to shop</a>
+      </div>
+    ) : (
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {products.map((p) => <ProductCard p={p} />)}
+      </div>
+    )}
+  </section>
+
+  <section class="bg-ink-2 border-y border-white/5 py-20">
+    <div class="max-w-4xl mx-auto px-5 md:px-8">
+      <h2 class="font-display text-3xl md:text-4xl">About our {collection.name.toLowerCase()}.</h2>
+      {collection.slug === "apparel" && (
+        <div class="mt-6 space-y-5 text-bone/80 leading-relaxed">
+          <p>Every Harmony Threads tee is hand-printed in our East London studio on 220gsm combed cotton. We use soft-hand discharge inks so the print becomes part of the fibre — no plastisol, no crackle, no peel.</p>
+          <p>Our cuts are unisex and deliberately slightly boxy. Shoulders sit an inch or so outside the seam, the hem falls just below the belt line, and the collar is ribbed to hold its shape after fifty washes. We wash-test every run before it ships.</p>
+          <p>Because we print in small batches, each piece is a bit of a time capsule — when a run sells out, the next one almost always comes back slightly different. That's on purpose.</p>
+          <h3 class="font-display text-2xl mt-10">How the tees age.</h3>
+          <p>Heavyweight cotton needs about ten wears before it finds its shape. The colour will soften a little; the print will settle into the fibre. Both of these are features. Wash cold, tumble low, don't iron the graphic — you'll be wearing it in five years.</p>
+        </div>
+      )}
+      {collection.slug === "books" && (
+        <div class="mt-6 space-y-5 text-bone/80 leading-relaxed">
+          <p>Harmony Publishing is the small books arm of the studio. We commission one or two titles a year from working music journalists — people who still go to shows, still dig in record shops, still take notes with a real pen.</p>
+          <p>Every title is offered in three formats: a high-res PDF for reading on a tablet, a Kindle-native build for your e-reader, and an unabridged audiobook narrated by the author. DRM-free, always.</p>
+          <p>When you buy, you'll get instant download links by email — no accounts, no apps, no "cloud library". Save the files, read them in fifteen years.</p>
+        </div>
+      )}
+      {collection.slug === "fragrance" && (
+        <div class="mt-6 space-y-5 text-bone/80 leading-relaxed">
+          <p>We make fragrance in partnership with master perfumer Léa Bouchard at her atelier in Grasse. Each scent starts with a mood-board of records, photographs, and places, and ends with ~18 months of drafts.</p>
+          <p>All our perfumes are 20% fragrance oil — true eau de parfum, not the flimsier eau de toilette. They're unisex by design, vegan, cruelty-free, and hand-filled in 50ml apothecary bottles. Each batch is numbered on the base of the bottle.</p>
+          <p>Expect 8–10 hours of wear, strong sillage for the first three, then a close-to-skin drydown. Store out of sunlight and they'll last two years unopened.</p>
+        </div>
+      )}
+    </div>
+  </section>
+</Base>

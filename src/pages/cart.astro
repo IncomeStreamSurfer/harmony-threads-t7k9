@@ -1,0 +1,112 @@
+---
+import Base from "../layouts/Base.astro";
+import { BRAND } from "../lib/brand";
+---
+<Base
+  title={`Your cart | ${BRAND.name}`}
+  description="Review and checkout your Harmony Threads order."
+  noindex={true}
+>
+  <section class="max-w-4xl mx-auto px-5 md:px-8 py-16">
+    <h1 class="font-display text-5xl">Your cart.</h1>
+    <p class="text-bone/60 mt-2">Review your items before checking out.</p>
+
+    <div id="cart-empty" class="hidden mt-16 text-center py-20 border border-white/10 rounded-2xl bg-ink-2">
+      <p class="font-display text-2xl">Nothing here yet.</p>
+      <p class="mt-2 text-bone/60">Your cart is empty.</p>
+      <a href="/shop" class="mt-6 inline-flex btn btn-primary">Shop the collection →</a>
+    </div>
+
+    <div id="cart-items" class="mt-10 space-y-4"></div>
+
+    <div id="cart-summary" class="hidden mt-10 bg-ink-2 border border-white/10 rounded-2xl p-6">
+      <div class="flex justify-between text-bone/70"><span>Subtotal</span><span id="subtotal">—</span></div>
+      <div class="flex justify-between text-bone/70 mt-2"><span>Shipping</span><span id="shipping">—</span></div>
+      <div class="flex justify-between text-xl font-semibold mt-4 pt-4 border-t border-white/10"><span>Total</span><span id="total">—</span></div>
+      <button id="checkout" class="btn btn-primary w-full mt-6 !h-12">Checkout →</button>
+      <p class="text-xs text-bone/40 mt-3 text-center">Secure payment by Stripe. We never see your card details.</p>
+    </div>
+  </section>
+
+  <script is:inline>
+    function fmt(p){ return "£" + (p/100).toFixed(2); }
+    function getCart(){ try { return JSON.parse(localStorage.getItem('ht_cart')||'[]'); } catch { return []; } }
+    function setCart(c){ localStorage.setItem('ht_cart', JSON.stringify(c)); window.dispatchEvent(new Event('ht:cart')); render(); }
+
+    function render(){
+      const cart = getCart();
+      const empty = document.getElementById('cart-empty');
+      const items = document.getElementById('cart-items');
+      const summary = document.getElementById('cart-summary');
+      if (!items || !empty || !summary) return;
+      if (cart.length === 0) {
+        empty.classList.remove('hidden');
+        items.innerHTML = '';
+        summary.classList.add('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      summary.classList.remove('hidden');
+      items.innerHTML = cart.map((c, i) => `
+        <div class="flex gap-5 bg-ink-2 border border-white/10 rounded-2xl p-4">
+          <img src="${c.image || ''}" alt="${c.name}" class="w-24 h-24 rounded-xl object-cover"/>
+          <div class="flex-1">
+            <a href="/shop/${c.slug}" class="font-display text-lg hover:text-rust">${c.name}</a>
+            ${c.variant ? `<div class="text-sm text-bone/50">${c.variant}</div>` : ''}
+            <div class="mt-2 font-semibold">${fmt(c.price)}</div>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <div class="flex items-center bg-ink rounded-full border border-white/10">
+              <button class="qty-dec px-3 py-1" data-i="${i}">−</button>
+              <span class="w-8 text-center">${c.qty}</span>
+              <button class="qty-inc px-3 py-1" data-i="${i}">+</button>
+            </div>
+            <button class="remove text-xs text-bone/40 hover:text-rust" data-i="${i}">Remove</button>
+          </div>
+        </div>
+      `).join('');
+      const subtotal = cart.reduce((a,b)=>a + b.price*b.qty, 0);
+      const hasShipping = cart.some(c => !c.sku.startsWith('HRM-EBK'));
+      const shipping = hasShipping ? (subtotal >= 5000 ? 0 : 495) : 0;
+      document.getElementById('subtotal').textContent = fmt(subtotal);
+      document.getElementById('shipping').textContent = hasShipping ? (shipping === 0 ? 'Free' : fmt(shipping)) : 'Digital — no shipping';
+      document.getElementById('total').textContent = fmt(subtotal + shipping);
+
+      items.querySelectorAll('.qty-dec').forEach(el => el.addEventListener('click', () => {
+        const i = parseInt(el.getAttribute('data-i'));
+        const cart = getCart(); cart[i].qty = Math.max(1, cart[i].qty - 1); setCart(cart);
+      }));
+      items.querySelectorAll('.qty-inc').forEach(el => el.addEventListener('click', () => {
+        const i = parseInt(el.getAttribute('data-i'));
+        const cart = getCart(); cart[i].qty += 1; setCart(cart);
+      }));
+      items.querySelectorAll('.remove').forEach(el => el.addEventListener('click', () => {
+        const i = parseInt(el.getAttribute('data-i'));
+        const cart = getCart(); cart.splice(i, 1); setCart(cart);
+      }));
+    }
+
+    document.getElementById('checkout')?.addEventListener('click', async () => {
+      const cart = getCart();
+      if (cart.length === 0) return;
+      const btn = document.getElementById('checkout');
+      btn.textContent = 'Redirecting to Stripe…';
+      btn.setAttribute('disabled','true');
+      try {
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: cart.map(c => ({ sku: c.sku, qty: c.qty })) }),
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+        else { btn.textContent = 'Checkout failed — try again'; btn.removeAttribute('disabled'); console.error(data); }
+      } catch (e) {
+        btn.textContent = 'Checkout failed — try again';
+        btn.removeAttribute('disabled');
+      }
+    });
+
+    render();
+  </script>
+</Base>
