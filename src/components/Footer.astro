@@ -1,0 +1,49 @@
+---
+import { BRAND, NAV } from "../lib/brand";
+const year = new Date().getFullYear();
+---
+<footer class="mt-24 border-t border-white/5 bg-ink-2">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 py-16 grid md:grid-cols-4 gap-12">
+    <div class="md:col-span-2">
+      <div class="flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-rust grid place-items-center text-bone font-display font-black">H</span>
+        <span class="font-display text-xl">{BRAND.name}</span>
+      </div>
+      <p class="mt-4 text-bone/60 max-w-md text-sm leading-relaxed">
+        {BRAND.description}
+      </p>
+      <form action="/api/subscribe" method="post" class="mt-6 flex gap-2 max-w-sm">
+        <input required type="email" name="email" placeholder="you@inbox.com" class="flex-1 bg-ink border border-white/10 rounded-full px-4 py-2 text-sm placeholder:text-bone/30 focus:border-rust outline-none" />
+        <button class="btn btn-primary !py-2 !px-4 !text-sm" type="submit">Join</button>
+      </form>
+    </div>
+    <div>
+      <h4 class="text-xs uppercase tracking-[0.2em] text-bone/40 mb-4 font-body font-semibold">Shop</h4>
+      <ul class="space-y-2 text-sm text-bone/70">
+        {NAV.map((n)=>(<li><a href={n.href} class="hover:text-rust transition">{n.label}</a></li>))}
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-xs uppercase tracking-[0.2em] text-bone/40 mb-4 font-body font-semibold">Visit</h4>
+      <address class="not-italic text-sm text-bone/70 leading-relaxed">
+        {BRAND.address.street}<br/>
+        {BRAND.address.city}, {BRAND.address.postcode}<br/>
+        {BRAND.address.country}
+      </address>
+      <p class="mt-4 text-sm text-bone/70">
+        <a href={`mailto:${BRAND.email}`} class="hover:text-rust">{BRAND.email}</a><br/>
+        <a href={`tel:${BRAND.phone.replace(/\s/g,'')}`} class="hover:text-rust">{BRAND.phone}</a>
+      </p>
+    </div>
+  </div>
+  <div class="border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-5 md:px-8 py-6 flex flex-col md:flex-row gap-3 justify-between text-xs text-bone/40">
+      <p>© {year} {BRAND.name}. Independent since 2021.</p>
+      <div class="flex gap-6">
+        <a href="/terms" class="hover:text-bone">Terms</a>
+        <a href="/privacy" class="hover:text-bone">Privacy</a>
+        <a href="/shipping" class="hover:text-bone">Shipping</a>
+      </div>
+    </div>
+  </div>
+</footer>

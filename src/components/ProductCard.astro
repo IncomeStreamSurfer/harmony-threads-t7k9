@@ -1,0 +1,26 @@
+---
+import { formatGBP, minPricePence, type ProductWithVariants } from "../lib/catalog";
+interface Props { p: ProductWithVariants }
+const { p } = Astro.props as Props;
+---
+<a href={`/shop/${p.slug}`} class="group bg-ink rounded-2xl overflow-hidden border border-white/10 hover:border-rust/50 transition block">
+  <div class="relative aspect-square overflow-hidden">
+    <img src={p.image_url || ""} alt={p.image_alt || p.name} class="w-full h-full object-cover group-hover:scale-105 transition duration-700"/>
+    {p.compare_at_pence && (
+      <span class="absolute top-3 left-3 bg-rust text-white text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full">Sale</span>
+    )}
+    {p.type === "eBook" && (
+      <span class="absolute top-3 right-3 bg-amber text-ink text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full">Digital</span>
+    )}
+  </div>
+  <div class="p-5">
+    <p class="text-[11px] uppercase tracking-widest text-bone/40">{p.vendor}</p>
+    <h3 class="font-display text-xl mt-1 group-hover:text-rust transition">{p.name}</h3>
+    <div class="mt-3 flex items-baseline gap-2">
+      <span class="font-semibold text-bone">{p.variants.length > 1 ? `From ${formatGBP(minPricePence(p))}` : formatGBP(minPricePence(p))}</span>
+      {p.compare_at_pence && (
+        <span class="text-sm text-bone/40 line-through">{formatGBP(p.compare_at_pence)}</span>
+      )}
+    </div>
+  </div>
+</a>

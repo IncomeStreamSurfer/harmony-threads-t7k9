@@ -1,0 +1,46 @@
+---
+import "../styles/global.css";
+import SEOHead from "../components/SEOHead.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { BRAND } from "../lib/brand";
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogType?: string;
+  canonicalUrl?: string;
+  structuredData?: object | object[];
+  noindex?: boolean;
+  author?: string;
+  publishDate?: string;
+  tags?: string[];
+}
+
+const props = Astro.props;
+const orgSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: BRAND.name,
+  url: Astro.site?.toString(),
+  logo: (Astro.site?.toString() || "") + "favicon.svg",
+  sameAs: [BRAND.social.instagram, BRAND.social.tiktok, BRAND.social.twitter],
+  description: BRAND.description,
+  contactPoint: { "@type": "ContactPoint", email: BRAND.email, telephone: BRAND.phone, contactType: "customer service", areaServed: "GB" },
+};
+const combined = Array.isArray(props.structuredData) ? [orgSchema, ...props.structuredData] : props.structuredData ? [orgSchema, props.structuredData] : [orgSchema];
+---
+<!doctype html>
+<html lang="en" class="bg-ink">
+  <head>
+    <SEOHead {...props} structuredData={combined} />
+  </head>
+  <body class="bg-ink text-bone min-h-screen flex flex-col">
+    <Nav />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
