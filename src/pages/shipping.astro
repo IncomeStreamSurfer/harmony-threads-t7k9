@@ -1,0 +1,76 @@
+---
+import Base from "../layouts/Base.astro";
+import { BRAND } from "../lib/brand";
+
+const faq = [
+  { q: "Where do you ship to?", a: "We ship worldwide. Free UK shipping over £50; the rest of the world starts at £6.95 depending on destination." },
+  { q: "How long does UK delivery take?", a: "Standard UK orders arrive in 2–4 working days. Next-day is available at checkout for orders placed before 2pm GMT Mon–Fri." },
+  { q: "Do you ship internationally?", a: "Yes — we regularly ship to the EU, US, Canada, Australia, and beyond. Import duties aren't included in the price; check your local customs for rates." },
+  { q: "What's your return policy?", a: "30 days to change your mind on unworn, unwashed apparel and sealed fragrance. Digital products are non-refundable once downloaded, but if something's wrong, email us." },
+  { q: "Are books sent digitally?", a: "Yes. You'll get a secure download link within a few minutes of checkout. PDFs and Kindle files are DRM-free. Audiobooks are streamed via a private link." },
+  { q: "Can I cancel an order?", a: "If we haven't shipped yet, absolutely. Email hello@harmonythreads.co within two hours and we'll void it." },
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+};
+
+const breadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: Astro.site?.toString() },
+    { "@type": "ListItem", position: 2, name: "Shipping", item: (Astro.site?.toString() || "") + "shipping" },
+  ],
+};
+---
+<Base
+  title={`Shipping & returns — free UK delivery over £50 | ${BRAND.name}`}
+  description="Free UK shipping on orders over £50. Worldwide delivery, 30-day returns on apparel and fragrance, instant digital delivery for eBooks and audiobooks."
+  structuredData={[breadcrumb, faqSchema]}
+>
+  <section class="max-w-4xl mx-auto px-5 md:px-8 py-16">
+    <nav class="text-xs text-bone/40 mb-4">
+      <a href="/" class="hover:text-rust">Home</a> <span class="mx-2">/</span> <span>Shipping & returns</span>
+    </nav>
+    <h1 class="font-display text-5xl">Shipping & returns.</h1>
+
+    <div class="mt-12 grid md:grid-cols-3 gap-5">
+      <div class="bg-ink-2 border border-white/10 rounded-2xl p-6">
+        <p class="text-xs uppercase tracking-widest text-rust">Free</p>
+        <h2 class="font-display text-xl mt-2">UK delivery over £50</h2>
+        <p class="mt-2 text-sm text-bone/60">Standard 2–4 working days. Under £50 it's a flat £4.95.</p>
+      </div>
+      <div class="bg-ink-2 border border-white/10 rounded-2xl p-6">
+        <p class="text-xs uppercase tracking-widest text-rust">30 days</p>
+        <h2 class="font-display text-xl mt-2">Returns on apparel</h2>
+        <p class="mt-2 text-sm text-bone/60">Unworn, unwashed — send it back in the same mailer for a full refund.</p>
+      </div>
+      <div class="bg-ink-2 border border-white/10 rounded-2xl p-6">
+        <p class="text-xs uppercase tracking-widest text-rust">Instant</p>
+        <h2 class="font-display text-xl mt-2">Digital delivery</h2>
+        <p class="mt-2 text-sm text-bone/60">eBooks and audiobooks arrive by email within a few minutes.</p>
+      </div>
+    </div>
+
+    <h2 class="font-display text-3xl mt-16">FAQ</h2>
+    <div class="mt-6 divide-y divide-white/5 border-t border-white/5">
+      {faq.map((f) => (
+        <details class="group py-5">
+          <summary class="cursor-pointer flex justify-between items-center font-display text-lg">
+            {f.q}
+            <span class="text-rust text-xl group-open:rotate-45 transition">+</span>
+          </summary>
+          <p class="mt-3 text-bone/70 leading-relaxed">{f.a}</p>
+        </details>
+      ))}
+    </div>
+
+    <div class="mt-16 text-center bg-ink-2 border border-white/10 rounded-2xl p-10">
+      <p class="font-display text-2xl">Still got questions?</p>
+      <a href="/contact" class="mt-4 inline-flex btn btn-primary">Talk to a human →</a>
+    </div>
+  </section>
+</Base>
